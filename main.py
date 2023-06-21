@@ -47,7 +47,7 @@ async def create_summary(summarize: Summarize):
     async def generate_chunks():
         try:
             async for chunk in await openai.ChatCompletion.acreate(
-                model="gpt-3.5-turbo",
+                model="gpt-3.5-turbo-16k",  # Input: $0.003 / 1K tokens   Output: $0.004 / 1K tokens
                 messages=[
                     {
                         "role": "system",
@@ -55,10 +55,10 @@ async def create_summary(summarize: Summarize):
                     },
                     {
                         "role": "user",
-                        "content": f'Summarize the following text in Markdown, use lists to summarize the most important points: "{text}"',
+                        "content": f'Summarize the following text in Markdown, don\'t write titles: "{text}"',
                     },
                 ],
-                max_tokens=150,
+                max_tokens=200,
                 stream=True,
             ):
                 content = chunk["choices"][0].get("delta", {}).get("content")
@@ -71,33 +71,3 @@ async def create_summary(summarize: Summarize):
             raise HTTPException(status_code=500, detail=str(e))
 
     return StreamingResponse(generate_chunks(), media_type="application/json")
-
-    # response = openai.ChatCompletion.create(
-    #     model="gpt-3.5-turbo-16k",
-    #     messages=[
-    #         {
-    #             "role": "system",
-    #             "content": "You are a helpful assistant that summarizes and formats text in Markdown style.",
-    #         },
-    #         {
-    #             "role": "user",
-    #             "content": f'Summarize the following text in Markdown: "{text}"',
-    #         },
-    #     ],
-    #     temperature=0.3,
-    #     max_tokens=200,
-    # )
-    # # Return the summarized text
-    # return response["choices"][0]["message"]["content"]
-
-
-@app.post("/htmltotext")
-async def html_to_text(htmltotext: HTMLtoText):
-    text = h.handle(htmltotext.text)
-    return {"text": text}
-
-
-@app.post("/list-models")
-async def list_models():
-    response = openai.Model.list()
-    return response
