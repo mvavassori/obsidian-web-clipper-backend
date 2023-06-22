@@ -55,17 +55,15 @@ async def create_summary(summarize: Summarize):
                     },
                     {
                         "role": "user",
-                        "content": f'Summarize the following text in Markdown, don\'t write titles: "{text}"',
+                        "content": f'Summarize the following text in bullet points: "{text}"',
                     },
                 ],
-                max_tokens=200,
+                max_tokens=300,
                 stream=True,
             ):
                 content = chunk["choices"][0].get("delta", {}).get("content")
                 if content is not None:
-                    yield json.dumps(
-                        {"chunk": content}
-                    ) + "\n"  # add a newline after each chunk
+                    yield json.dumps({"chunk": content}) + "\n"
 
         except Exception as e:
             raise HTTPException(status_code=500, detail=str(e))
