@@ -35,10 +35,6 @@ class Summarize(BaseModel):
     text: str
 
 
-class HTMLtoText(BaseModel):
-    text: str
-
-
 @app.post("/summarize")
 async def create_summary(summarize: Summarize):
     # Convert HTML to plain text
